@@ -33,23 +33,23 @@ class RdsCluster(Construct):
         engine_version = settings.engine_version  # Update this version if needed
 
         # Create parameter groups for cluster
-        cluster_parameter_group = rds.CfnDBClusterParameterGroup(self, "unity-cluster-parameter-group",
+        cluster_parameter_group = rds.CfnDBClusterParameterGroup(self, "kc-cluster-parameter-group",
             description=settings.cluster_parameter_description,
             family=settings.parameter_family,  # Replace with the appropriate family for your engine version
             parameters={
                     "rds.force_ssl": "0",
             },
-            db_cluster_parameter_group_name=f'unity-{self.stack_prefix}-parameter-group',  # Specify your custom name here
+            db_cluster_parameter_group_name=f'kc-{self.stack_prefix}-parameter-group',  # Specify your custom name here
         )
         
         # Create parameter groups for Instance
-        instance_parameter_group = rds.CfnDBParameterGroup(self, "unity-instance-parameter-group",
+        instance_parameter_group = rds.CfnDBParameterGroup(self, "kc-instance-parameter-group",
             description=settings.instance_parameter_description,
             family=settings.parameter_family,  # Replace with the appropriate family for your engine version
             parameters={
                 "max_connections": "5000",
             },
-            db_parameter_group_name=f'unity-{self.stack_prefix}-instance-parameter-group',  # Specify your custom name here
+            db_parameter_group_name=f'kc-{self.stack_prefix}-instance-parameter-group',  # Specify your custom name here
         )
 
         # Create CloudWatch Logs if enabled
@@ -58,7 +58,7 @@ class RdsCluster(Construct):
             "RDSLogGroup",
             retention=logs.RetentionDays.ONE_MONTH,
             removal_policy=RemovalPolicy.DESTROY,
-            log_group_name=f'unity-{self.stack_prefix}-cloudwatch-logs',
+            log_group_name=f'kc-{self.stack_prefix}-cloudwatch-logs',
         ) if settings.enable_cloudwatch_logs else None
         
         # Create Secrets Manager secret and IAM role using imported functions
@@ -69,7 +69,7 @@ class RdsCluster(Construct):
         # Create the Aurora PostgreSQL cluster
         db_cluster = rds.CfnDBCluster(
             self,
-            "UnityDBCluster",
+            "KcDBCluster",
             engine="aurora-postgresql",
             engine_version=engine_version,
             master_username=settings.db_username,
@@ -83,7 +83,7 @@ class RdsCluster(Construct):
             preferred_maintenance_window=settings.preferred_maintenance_window if settings.enable_backup_settings else None,
             storage_encrypted=settings.storage_encrypted,
             deletion_protection=settings.deletion_protection,
-            db_cluster_identifier=f'unity-{self.stack_prefix}',
+            db_cluster_identifier=f'kc-{self.stack_prefix}',
             availability_zones=["us-east-1a", "us-east-1c", "us-east-1b"],  # Specify valid AZs here
             enable_cloudwatch_logs_exports=["postgresql"] if settings.enable_cloudwatch_logs else [],
         )
@@ -91,8 +91,8 @@ class RdsCluster(Construct):
         # Create the writer instance in the cluster
         db_instance_writer = rds.CfnDBInstance(
             self,
-            "UnityDBInstanceWriter",
-            db_instance_identifier=f'unity-{self.stack_prefix}-instance1',
+            "KcDBInstanceWriter",
+            db_instance_identifier=f'kc-{self.stack_prefix}-instance1',
             db_instance_class=settings.instance_type,  # Instance type
             engine=settings.db_engine,
             db_cluster_identifier=db_cluster.ref,
@@ -105,8 +105,8 @@ class RdsCluster(Construct):
         if settings.multi_az:
             db_instance_reader = rds.CfnDBInstance(
                 self,
-                "UnityDBInstanceReader",
-                db_instance_identifier=f'unity-{self.stack_prefix}-instance2',
+                "KcDBInstanceReader",
+                db_instance_identifier=f'kc-{self.stack_prefix}-instance2',
                 db_instance_class=settings.instance_type,  # Instance type
                 engine=settings.db_engine,
                 db_cluster_identifier=db_cluster.ref,
@@ -118,14 +118,14 @@ class RdsCluster(Construct):
         
         rds_proxy = rds.CfnDBProxy(
             self,
-            "UnityDBProxy",
+            "KcDBProxy",
             auth=[rds.CfnDBProxy.AuthFormatProperty(
                 auth_scheme="SECRETS",
                 description="Auth for RDS Proxy",
                 secret_arn=secret.secret_arn,
                 iam_auth="DISABLED"
             )],
-            db_proxy_name=f'unity-{self.stack_prefix}-proxy-bmw',
+            db_proxy_name=f'kc-{self.stack_prefix}-proxy-bmw',
             vpc_security_group_ids=[security_group.security_group_id],
             vpc_subnet_ids=[
                 settings.subnet_1,

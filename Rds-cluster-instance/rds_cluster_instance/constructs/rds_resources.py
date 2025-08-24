@@ -40,7 +40,7 @@ def create_db_secret(scope: Construct) -> secretsmanager.CfnSecret:
     secret = secretsmanager.Secret(
         scope,
         "DBSecret",
-        secret_name=f'unity-{settings.service_name}-{settings.stage.value}-secret-manager',
+        secret_name=f'kc-{settings.service_name}-{settings.stage.value}-secret-manager',
         description="Database credentials for RDS",
         generate_secret_string=secretsmanager.SecretStringGenerator(
                 secret_string_template='{"username": "postgres"}',

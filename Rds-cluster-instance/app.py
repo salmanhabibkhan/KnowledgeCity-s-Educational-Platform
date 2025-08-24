@@ -6,7 +6,7 @@ from settings import settings
 
 app = cdk.App()
 rds_cluster_stack = RdsClusterInstanceStack(
-    app, f"unity-{settings.service_name}-{settings.stage.value}-stack",
+    app, f"kc-{settings.service_name}-{settings.stage.value}-stack",
     env=cdk.Environment(account=settings.account, region=settings.region),
 )
 

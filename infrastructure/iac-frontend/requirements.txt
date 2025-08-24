@@ -1,0 +1,4 @@
+aws-cdk-lib==2.38.1
+pydantic==1.9.2
+constructs==10.1.81
+pytest==7.1.2

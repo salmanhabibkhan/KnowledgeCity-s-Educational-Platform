@@ -188,7 +188,7 @@ cdk8s synth
 
 kubectl apply -f dist
 
-# After Ingress Please deploy the other microservcie with the same above k8s Depoyment Guide like ingress.
+# After Ingress Please deploy the other microservcie with the same above k8s Depoyment Guide like ingress. Monolith, analytics, video-processing, redis,celery, and rabbitmq etc
 
 ```
 
@@ -260,3 +260,6 @@ kubectl apply -f dist
 
 **KnowledgeCity DevOps Team**  
 Built with  using AWS CDK, Kubernetes, and modern DevOps practices
+
+### Note
+For the Details of the project Please go thourgh witht the documentation docs/documentation
